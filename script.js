@@ -1,4 +1,5 @@
 let formBox = document.querySelector(".formBox");
+
 let btnToCancelForm = document.querySelector(".form-cancel-button");
 let addBtn = document.querySelector("#add");
 const key = "tableData"; // key for table
@@ -12,8 +13,6 @@ btnToCancelForm.addEventListener("click", () => {
   formBox.classList.remove("active-popup");
 });
 
-// Initializing the array from local storage or use empty array
-
 let tData = JSON.parse(localStorage.getItem(key)) || [];
 
 // fn to save current data array to th local storge
@@ -21,8 +20,8 @@ function saveData() {
   localStorage.setItem(key, JSON.stringify(tData));
 }
 
-function addrowData(id, doctitle, formStatus) {
-  tData.push({ id, doctitle, formStatus });
+function addrowData(id, doctitle, formStatus, docAddEditDate) {
+  tData.push({ id, doctitle, formStatus, docAddEditDate });
   saveData();
 }
 
@@ -31,10 +30,11 @@ function addrowData(id, doctitle, formStatus) {
 let selectedRow = null;
 
 // Main table data form
+
 function onFormSubmit() {
   const doctitle = document.getElementById("documentTitle").value;
   const formStatus = document.getElementById("formStatus").value;
-  const id = Date.now();
+  const docAddEditDate = Date.now();
 
   let indexVal = document.getElementById("formStatus").selectedIndex;
 
@@ -43,15 +43,16 @@ function onFormSubmit() {
     return;
   }
 
-  addrowData(id, doctitle, formStatus);
+  if (editRowId) {
+    upDateRowData(doctitle, formStatus, docAddEditDate);
+  } else {
+    const id = Date.now();
+    addrowData(id, doctitle, formStatus, docAddEditDate);
+  }
 
   rowInsert();
   formRset();
 }
-
-window.addEventListener("load", function () {
-  rowInsert();
-});
 
 function rowInsert() {
   let tBody = document.querySelector("tbody");
@@ -103,7 +104,13 @@ function searchFunction() {
       String(searchInputValue).toLowerCase(),
   );
 
-  searchDataRender(searchData);
+  if(searchInputValue.length === 0 && searchData.length === 0){
+      searchDataRender(tData);
+  }else if(searchInputValue.length > 0 && searchData.length > 0){
+    searchDataRender(searchData);
+  }else if(searchInputValue.length > 0 && searchData.length === 0){
+    alert("No matched item");
+  }
 }
 
 function searchDataRender(searchData) {
@@ -123,7 +130,8 @@ function dataRender(data) {
 
     const cell1 = newRow.insertCell(1);
     cell1.textContent = element.doctitle;
-    
+    cell1.classList.add("titleText");
+
     const cell2 = newRow.insertCell(2);
 
     const statusSpan = document.createElement("span");
@@ -140,8 +148,26 @@ function dataRender(data) {
 
     // date/ time
     const cell3 = newRow.insertCell(3);
-    const currDate = new Date();
-    cell3.textContent = currDate.toLocaleString();
+    
+
+    const formattedDate = new Date(element.docAddEditDate);
+    const formattedOnlyDate = formattedDate.toLocaleDateString("en-GB");
+    const currTime = formattedDate.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    cell3.appendChild(document.createTextNode(formattedOnlyDate));
+    cell3.appendChild(document.createElement("br"));
+    const timeSpan = document.createElement("span");
+    timeSpan.textContent = currTime;
+
+    cell3.classList.add("date");
+    cell3.style.color = "#626D82";
+    cell3.style.fontFamily = "Inter, sans-serif";
+    cell3.appendChild(timeSpan);
+
     const cell4 = newRow.insertCell(4);
     const actionButton = document.createElement("button");
 
@@ -164,27 +190,74 @@ function dataRender(data) {
     img.classList.add("imgInTable");
 
     menuBtn.appendChild(img);
-    menuBtn.id = element.id;
-    
     menuBtn.classList.add("menubtn1");
-
     cell5.appendChild(menuBtn);
 
-    
+    const dropdown = document.createElement("div");
+    dropdown.classList.add("dropdown-menu");
+    dropdown.style.display = "none"; 
+
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Edit";
+    editBtn.id = element.id;
+    editBtn.classList.add("edit-btn");
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+    deleteBtn.id = element.id;
+    deleteBtn.classList.add("delete-btn");
+
+    dropdown.appendChild(editBtn);
+    dropdown.appendChild(deleteBtn);
+
+    cell5.appendChild(dropdown);
+
+    // Toggle dropdown on menu button click
+    menuBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // prevent event bubbling
+      // Close other dropdowns
+      document.querySelectorAll(".dropdown-menu").forEach((d) => {
+        if (d !== dropdown){
+           d.style.display = "none";
+        }
+      });
+      // Toggle current dropdown
+      dropdown.style.display =
+        dropdown.style.display === "none" ? "block" : "none";
+    });
+
+    document.addEventListener("click", () => {
+      dropdown.style.display = "none";
+    });
   });
 }
 
 // Edit functionality
 // Menu Icon ele (Using event delegation now)
 
-let tableMenuBtn = document.querySelector(".content-table tbody");
+let editRowId = null;
 
-tableMenuBtn.addEventListener("click", function (e) {
-  const btn = e.target.closest(".menubtn1");
-  if (btn) {
-    console.log(btn.id);
-    putDataInForm(btn.id);
+const tableBody = document.querySelector(".content-table tbody");
+
+tableBody.addEventListener("click", function (e) {
+  const editBtn = e.target.closest(".edit-btn");
+  if (editBtn) {
+
+    editRowId = editBtn.id;
+    putDataInForm(editRowId);
+
     formBox.classList.add("active-popup");
+  }
+
+  const deleteBtn = e.target.closest(".delete-btn");
+  if (deleteBtn) {
+    
+    let deleteBtnId = deleteBtn.id;
+    tData = tData.filter((ele) => !deleteBtnId.includes(String(ele.id)));
+    console.log(deleteBtn.id);
+    
+    saveData();
+    rowInsert();
   }
 });
 
@@ -192,10 +265,27 @@ function putDataInForm(btnId) {
   tData.forEach((ele) => {
     if (ele.id == btnId) {
       // put data in the table
-    
+
       document.getElementById("documentTitle").value = ele.doctitle;
       document.getElementById("formStatus").value = ele.formStatus;
     }
   });
 }
 
+function upDateRowData(doctitle, formStatus, docAddEditDate) {
+  const index = tData.findIndex((ele) => String(ele.id) === String(editRowId));
+
+  if (index !== -1) {
+    tData[index].doctitle = doctitle;
+    tData[index].formStatus = formStatus;
+    tData[index].docAddEditDate = docAddEditDate;
+
+    saveData();
+  }
+
+  editRowId = null; 
+}
+
+window.addEventListener("load", function () {
+  dataRender(tData);
+});
