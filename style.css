@@ -184,6 +184,10 @@ color: #b5bdcd;}
 #right-middle #doc{
   width: 50%;}
 
+#right-middle #doc h2{
+  font-family: "Zin Display", sans-serif;
+}
+
 #right-middle .addDeleteDocument{
   display: flex;
   flex-direction: row;
