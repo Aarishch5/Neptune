@@ -128,7 +128,7 @@ main {
   font-family: "Spline Sans", sans-serif;
   font-size: 24px;
   color: #1f4451;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 #left-bottom h3 {
@@ -304,6 +304,7 @@ table button {
   border-radius: 5px;
   color: #626d82;
   background-color: white;
+  cursor: pointer;
   font-weight: 500;
   font-size: 14px;
   border: 1px solid #b5bdcd;
@@ -313,18 +314,17 @@ table button {
   border-radius: 22px;
   font-weight: 500;
   font-size: 15px;
+  padding: 6px 14px;
   font-family: "Inter", sans-serif;
 }
 
 .status-needsSigning {
   background-color: #436d7c;
-  padding: 6px 14px;
   color: #ffffff;
 }
 
 .status-completed {
   background-color: #d3f7b5;
-  padding: 6px 10.5px;
   color: #1f4451;
 }
 
@@ -354,9 +354,6 @@ table tr select {
   color: #436d7c;
   font-family: "Spline Sans", sans-serif;
 }
-
-/* td {
-  text-align: center;} */
 
 .formBox {
   position: absolute;
