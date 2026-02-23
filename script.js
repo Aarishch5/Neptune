@@ -26,9 +26,6 @@ function addrowData(id, doctitle, formStatus, docAddEditDate) {
 }
 
 //     Add rows Logic
-
-let selectedRow = null;
-
 // Main table data form
 
 function onFormSubmit() {
@@ -104,11 +101,11 @@ function searchFunction() {
       String(searchInputValue).toLowerCase(),
   );
 
-  if(searchInputValue.length === 0 && searchData.length === 0){
-      searchDataRender(tData);
-  }else if(searchInputValue.length > 0 && searchData.length > 0){
+  if (searchInputValue.length === 0 && searchData.length === 0) {
+    searchDataRender(tData);
+  } else if (searchInputValue.length > 0 && searchData.length > 0) {
     searchDataRender(searchData);
-  }else if(searchInputValue.length > 0 && searchData.length === 0){
+  } else if (searchInputValue.length > 0 && searchData.length === 0) {
     alert("No matched item");
   }
 }
@@ -134,21 +131,33 @@ function dataRender(data) {
 
     const cell2 = newRow.insertCell(2);
 
+    const statusWrapper = document.createElement("div");
+    statusWrapper.classList.add("status-wrapper");
+
     const statusSpan = document.createElement("span");
     statusSpan.textContent = element.formStatus;
 
     if (element.formStatus === "Completed") {
       statusSpan.classList.add("status-completed");
+      statusWrapper.appendChild(statusSpan);
     } else if (element.formStatus === "Needs Signing") {
       statusSpan.classList.add("status-needsSigning");
+      statusWrapper.appendChild(statusSpan);
     } else if (element.formStatus === "Pending") {
-      statusSpan.classList.add("status-pending");
+      statusSpan.classList.add("status-pill");
+
+      const subText = document.createElement("div");
+      subText.innerHTML = `Waiting for <strong>1 person</strong>`;
+      subText.classList.add("pending-subtext");
+
+      statusWrapper.appendChild(statusSpan);
+      statusWrapper.appendChild(subText);
     }
-    cell2.appendChild(statusSpan);
+
+    cell2.appendChild(statusWrapper);
 
     // date/ time
     const cell3 = newRow.insertCell(3);
-    
 
     const formattedDate = new Date(element.docAddEditDate);
     const formattedOnlyDate = formattedDate.toLocaleDateString("en-GB");
@@ -162,13 +171,22 @@ function dataRender(data) {
     cell3.appendChild(document.createElement("br"));
     const timeSpan = document.createElement("span");
     timeSpan.textContent = currTime;
+    timeSpan.style.fontSize = "16px";
+    // timeSpan.style.textAlign = "Left";
 
     cell3.classList.add("date");
     cell3.style.color = "#626D82";
     cell3.style.fontFamily = "Inter, sans-serif";
+    cell3.style.fontSize = "16px";
     cell3.appendChild(timeSpan);
+    cell3.style.textAlign = "Left";
+
+    // Appending button + menu Icon
 
     const cell4 = newRow.insertCell(4);
+    const wrapBtnIcon = document.createElement("div");
+    wrapBtnIcon.classList.add("wrapBtnIcon");
+
     const actionButton = document.createElement("button");
 
     if (element.formStatus === "Completed") {
@@ -180,22 +198,22 @@ function dataRender(data) {
     }
 
     actionButton.classList.add("btn5");
-    cell4.appendChild(actionButton);
+    // cell4.appendChild(actionButton);
 
-    const cell5 = newRow.insertCell(5);
+    // const cell5 = newRow.insertCell(5);
     let menuBtn = document.createElement("button");
+    menuBtn.classList.add("menubtn1");
 
     const img = document.createElement("img");
     img.src = "images/menuIcon.svg"; // menu icon
     img.classList.add("imgInTable");
 
     menuBtn.appendChild(img);
-    menuBtn.classList.add("menubtn1");
-    cell5.appendChild(menuBtn);
+    // cell5.appendChild(menuBtn);
 
     const dropdown = document.createElement("div");
     dropdown.classList.add("dropdown-menu");
-    dropdown.style.display = "none"; 
+    dropdown.style.display = "none";
 
     const editBtn = document.createElement("button");
     editBtn.textContent = "Edit";
@@ -210,15 +228,20 @@ function dataRender(data) {
     dropdown.appendChild(editBtn);
     dropdown.appendChild(deleteBtn);
 
-    cell5.appendChild(dropdown);
+    wrapBtnIcon.appendChild(actionButton);
+    wrapBtnIcon.appendChild(menuBtn);
+    wrapBtnIcon.appendChild(dropdown);
+    cell4.appendChild(wrapBtnIcon);
+
+    // cell5.appendChild(dropdown);
 
     // Toggle dropdown on menu button click
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation(); // prevent event bubbling
       // Close other dropdowns
       document.querySelectorAll(".dropdown-menu").forEach((d) => {
-        if (d !== dropdown){
-           d.style.display = "none";
+        if (d !== dropdown) {
+          d.style.display = "none";
         }
       });
       // Toggle current dropdown
@@ -242,7 +265,6 @@ const tableBody = document.querySelector(".content-table tbody");
 tableBody.addEventListener("click", function (e) {
   const editBtn = e.target.closest(".edit-btn");
   if (editBtn) {
-
     editRowId = editBtn.id;
     putDataInForm(editRowId);
 
@@ -251,10 +273,9 @@ tableBody.addEventListener("click", function (e) {
 
   const deleteBtn = e.target.closest(".delete-btn");
   if (deleteBtn) {
-    
     let deleteBtnId = deleteBtn.id;
     tData = tData.filter((ele) => !deleteBtnId.includes(String(ele.id)));
-    
+
     saveData();
     rowInsert();
   }
@@ -282,7 +303,8 @@ function upDateRowData(doctitle, formStatus, docAddEditDate) {
     saveData();
   }
 
-  editRowId = null; 
+  formRset();
+  editRowId = null;
 }
 
 window.addEventListener("load", function () {
