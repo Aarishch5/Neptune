@@ -254,7 +254,6 @@ tableBody.addEventListener("click", function (e) {
     
     let deleteBtnId = deleteBtn.id;
     tData = tData.filter((ele) => !deleteBtnId.includes(String(ele.id)));
-    console.log(deleteBtn.id);
     
     saveData();
     rowInsert();

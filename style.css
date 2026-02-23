@@ -40,7 +40,6 @@ main {
   padding: 10px;
   border-radius: 6px;}
 
-
 #box-left{
   display: flex;
   gap: 10px;
@@ -136,6 +135,7 @@ padding-right: 3px;}
   background-color: #1f4451;
   border-radius: 5px;
   color: white;
+  cursor: pointer;
   border: none;}
 
 #right {
@@ -203,7 +203,8 @@ color: #b5bdcd;}
   border-radius: 6px;
   background-color: #ffffff;
   font-size: 14px;
-  color: #878b94;}
+  cursor: pointer;
+  color: #878b94;}  
 
 #right-middle #search{
   width: 30%;
@@ -221,7 +222,9 @@ color: #b5bdcd;}
   position: relative;
   right: 40px;
   top: 4px;
+  cursor: pointer;
   border-radius: 100%;
+
   border: none;}
 
 #right-middle input {
@@ -426,6 +429,7 @@ td {
     border: 1px solid #ccc;
     z-index: 100;
     padding: 5px;
+    border-radius: 10px;
     box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
 }
 
@@ -434,5 +438,8 @@ td {
     width: 100%;
     margin: 2px 0;
     padding: 5px;
+    border-radius: 8px;
     cursor: pointer;
+    font-family: "Spline Sans",sans-serif;
+
 }
